@@ -1,16 +1,16 @@
 export class Car  {
 constructor(
-  id: number,
-  vin: string,
-  ext_color: string,
-  int_color: string,
-  car_model: string,
-  opt_code: string,
-  ship_to: string,
-  sold_to: string,
-  created_date: Date,
-  serial_number: number,
-  model_year: number
+  public id: number,
+  public vin: string,
+  public ext_color: string,
+  public int_color: string,
+  public car_model: string,
+  public opt_code: string,
+  public ship_to: string,
+  public sold_to: string,
+  public created_date: Date,
+  public serial_number: number,
+  public model_year: number
 ){}
 }
 

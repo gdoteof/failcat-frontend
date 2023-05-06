@@ -4,19 +4,20 @@ import { Car, CarModel, Dealer } from "./models";
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Table } from "@nextui-org/react";
 
 // add perpage and offset to fetchCars as query params to api/cars
 async function fetchCars(perPage: number, offset: number): Promise<Car[]> {
   return await fetch(
-    `http://localhost:8787/api/cars?perpage=${perPage}&offset=${offset}`
+    `https://fc-api.vteng.io/api/cars?perpage=${perPage}&offset=${offset}`
   ).then((res) => res.json());
 }
 
 export default function Page() {
+  const searchParams = useSearchParams();
   // use fetchCars(perPage, offset) to get data to show
-  const perPage: number =
-    parseInt(useSearchParams().get("perPage") ?? "") || 10;
-  const offset: number = parseInt(useSearchParams().get("offset") ?? "") || 0;
+  const perPage: number = parseInt(searchParams.get("perPage") ?? "") || 10;
+  const offset: number = parseInt(searchParams.get("offset") ?? "") || 0;
 
   const [cars, setCars] = React.useState<Car[]>([]);
   React.useEffect(() => {
@@ -27,50 +28,59 @@ export default function Page() {
   }, [perPage, offset]);
 
   return (
-    <main className="flex min-h-screen flex-row items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <table className="table-auto">
-          <thead>
-            <tr>
-              <th className="px-4 py-2">Id</th>
-              <th className="px-4 py-2">Vin</th>
-              <th className="px-4 py-2">Ext Color</th>
-              <th className="px-4 py-2">Int Color</th>
-              <th className="px-4 py-2">Car Model</th>
-              <th className="px-4 py-2">Opt Code</th>
-              <th className="px-4 py-2">Ship To</th>
-              <th className="px-4 py-2">Sold To</th>
-              <th className="px-4 py-2">Created Date</th>
-              <th className="px-4 py-2">Serial Number</th>
-              <th className="px-4 py-2">Model Year</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cars.map((car) => (
-              <tr key={car.id}>
-                <td className="border px-4 py-2">{car.id}</td>
-                <td className="border px-4 py-2">{car.vin}</td>
-                <td className="border px-4 py-2">{car.ext_color}</td>
-                <td className="border px-4 py-2">{car.int_color}</td>
-                <td className="border px-4 py-2">{car.car_model}</td>
-                <td className="border px-4 py-2">{car.opt_code}</td>
-                <td className="border px-4 py-2">{car.ship_to}</td>
-                <td className="border px-4 py-2">{car.sold_to}</td>
-                <td className="border px-4 py-2">{car.created_date}</td>
-                <td className="border px-4 py-2">{car.serial_number}</td>
-                <td className="border px-4 py-2">{car.model_year}</td>
-              </tr>
-            ))}
-          </tbody>
-          <Link
-            href={{
-              query: { perPage: perPage, offset: offset + perPage },
-            }}
-          >
-            Next
-          </Link>
-        </table>
-      </div>
-    </main>
+    <div>
+      <Table
+        aria-label="Failcat"
+        css={{
+          height: "auto",
+          minWidth: "100%",
+        }}
+      >
+        <Table.Header>
+          <Table.Column>Id</Table.Column>
+          <Table.Column>Vin</Table.Column>
+          <Table.Column>Ext Color</Table.Column>
+          <Table.Column>Int Color</Table.Column>
+          <Table.Column>Car Model</Table.Column>
+          <Table.Column>Opt Code</Table.Column>
+          <Table.Column>Ship To</Table.Column>
+          <Table.Column>Sold To</Table.Column>
+          <Table.Column>Serial Number</Table.Column>
+          <Table.Column>Model Year</Table.Column>
+        </Table.Header>
+        <Table.Body>
+          {cars.map((car) => (
+            <Table.Row key={car.id}>
+              <Table.Cell>{car.id}</Table.Cell>
+              <Table.Cell>{car.vin}</Table.Cell>
+              <Table.Cell>{car.ext_color}</Table.Cell>
+              <Table.Cell>{car.int_color}</Table.Cell>
+              <Table.Cell>{car.car_model}</Table.Cell>
+              <Table.Cell>{car.opt_code}</Table.Cell>
+              <Table.Cell>{car.ship_to}</Table.Cell>
+              <Table.Cell>{car.sold_to}</Table.Cell>
+              <Table.Cell>{car.serial_number}</Table.Cell>
+              <Table.Cell>{car.model_year}</Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+      <Link
+        className="px-12"
+        href={{
+          query: { perPage: perPage, offset: offset + perPage },
+        }}
+      >
+        Next
+      </Link>
+      <Link
+        className="px-12"
+        href={{
+          query: { perPage: perPage, offset: offset - perPage },
+        }}
+      >
+        Previous
+      </Link>
+    </div>
   );
 }
