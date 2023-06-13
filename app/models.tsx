@@ -14,6 +14,11 @@ constructor(
 ){}
 }
 
+export interface Car {
+  // add the properties of a car here
+  [key: string]: any;
+}
+
 export class Dealer {
 constructor(
 public dealer_code: string,

@@ -6,17 +6,16 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Table } from "@nextui-org/react";
 import { MdPictureAsPdf } from "react-icons/md";
+import {format} from "date-fns"
 
-// add perpage and offset to fetchCars as query params to api/cars
 async function fetchCars(
   perPage: number,
   offset: number,
   dealer: string | null
 ): Promise<Car[]> {
   const maybeDealerQuery = dealer ? `&dealer=${dealer}` : "";
-  return await fetch(
-    `https://fc-api.vteng.io/api/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}`
-  ).then((res) => res.json());
+  const url = `https://failcat-rust.vteng.io/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}`;
+  return await fetch( url).then((res) => res.json());
 }
 
 export default function Page() {
@@ -49,6 +48,12 @@ export default function Page() {
     );
   };
 
+  const prettyDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return format(date, "yyyy-mm-dd hh:mm");
+  }
+
+
   return (
     <div>
       <Table
@@ -67,6 +72,7 @@ export default function Page() {
           <Table.Column>Opt Code</Table.Column>
           <Table.Column>Dealer</Table.Column>
           <Table.Column>Model Year</Table.Column>
+          <Table.Column>Date Scraped</Table.Column>
         </Table.Header>
         <Table.Body>
           {cars.map((car) => (
@@ -99,6 +105,7 @@ export default function Page() {
                 </Link>
               </Table.Cell>
               <Table.Cell>{car.model_year}</Table.Cell>
+              <Table.Cell>{prettyDate(car.created_date, 'yyyy-mm-dd hh:mm')}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
