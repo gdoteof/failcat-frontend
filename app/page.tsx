@@ -4,17 +4,20 @@ import { Car, CarModel, Dealer } from "./models";
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Table } from "@nextui-org/react";
+import { Button, Grid, Switch, Table } from "@nextui-org/react";
 import { MdPictureAsPdf } from "react-icons/md";
 import {format} from "date-fns"
+
+type OrderBy = "id" | "serial"
 
 async function fetchCars(
   perPage: number,
   offset: number,
-  dealer: string | null
+  dealer: string | null,
+  order: OrderBy = "serial"
 ): Promise<Car[]> {
   const maybeDealerQuery = dealer ? `&dealer=${dealer}` : "";
-  const url = `https://failcat-rust.vteng.io/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}`;
+  const url = `https://failcat-rust.vteng.io/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}&order=${order}`;
   return await fetch( url).then((res) => res.json());
 }
 
@@ -30,12 +33,15 @@ export default function Page() {
   const [dealer, setDealer] = React.useState<string | null>(
     searchParams.get("dealer")
   );
+
+  const [order, setOrder] = React.useState<OrderBy>("serial");
+
   React.useEffect(() => {
-    fetchCars(perPage, offset, dealer).then((cars) => {
+    fetchCars(perPage, offset, dealer, order).then((cars) => {
       setCars(cars);
       console.log(cars);
     });
-  }, [perPage, offset, dealer]);
+  }, [perPage, offset, dealer, order]);
 
   const highlightLastSix = (vin: string) => {
     const lastSix = vin.slice(-6);
@@ -48,14 +54,23 @@ export default function Page() {
     );
   };
 
-  const prettyDate = (isoDate: string) => {
-    const date = new Date(isoDate);
-    return format(date, "yyyy-mm-dd hh:mm");
+  const prettyDate = (date: Date) => {
+    try {
+      date = new Date(date);
+      return format(date, "yyyy-MM-dd hh:mm");
+    } catch (e) {
+      return "";
+    }
+
   }
 
 
   return (
     <div>
+      <Button.Group color="primary" bordered ghost>
+        <Button onClick={() => setOrder("serial")}>Sort By Highest Vin</Button>
+        <Button onClick={() => setOrder("id")}>Sort By Most Recently Scraped</Button>
+      </Button.Group>
       <Table
         aria-label="Failcat"
         css={{
@@ -105,7 +120,7 @@ export default function Page() {
                 </Link>
               </Table.Cell>
               <Table.Cell>{car.model_year}</Table.Cell>
-              <Table.Cell>{prettyDate(car.created_date, 'yyyy-mm-dd hh:mm')}</Table.Cell>
+              <Table.Cell>{prettyDate(car.created_date)}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
