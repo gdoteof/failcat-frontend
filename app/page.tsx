@@ -1,14 +1,25 @@
 "use client";
 
 import { Car, CarModel, Dealer } from "./models";
-import React from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useCallback } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Button, Grid, Switch, Table } from "@nextui-org/react";
+import {
+  Badge,
+  Button,
+  Card,
+  Container,
+  Grid,
+  Row,
+  Spacer,
+  Switch,
+  Table,
+  Text,
+} from "@nextui-org/react";
 import { MdPictureAsPdf } from "react-icons/md";
-import {format} from "date-fns"
+import { format } from "date-fns";
 
-type OrderBy = "id" | "serial"
+type OrderBy = "id" | "serial";
 
 async function fetchCars(
   perPage: number,
@@ -18,13 +29,29 @@ async function fetchCars(
 ): Promise<Car[]> {
   const maybeDealerQuery = dealer ? `&dealer=${dealer}` : "";
   const url = `https://failcat-rust.vteng.io/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}&order=${order}`;
-  return await fetch( url).then((res) => res.json());
+  return await fetch(url).then((res) => res.json());
 }
 
 export default function Page() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const offset = parseInt(searchParams.get("offset") ?? "") || 0;
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
   // use fetchCars(perPage, offset) to get data to show
-  const offset: number = parseInt(searchParams.get("offset") ?? "") || 0;
+  const [_, setOffset] = React.useState<number>(
+    parseInt(searchParams.get("offset") ?? "") || 0
+  );
+
+  const router = useRouter();
 
   const [cars, setCars] = React.useState<Car[]>([]);
   const [perPage, setPerPage] = React.useState<number>(
@@ -61,16 +88,66 @@ export default function Page() {
     } catch (e) {
       return "";
     }
-
-  }
-
+  };
 
   return (
     <div>
-      <Button.Group color="primary" bordered ghost>
-        <Button onClick={() => setOrder("serial")}>Sort By Highest Vin</Button>
-        <Button onClick={() => setOrder("id")}>Sort By Most Recently Scraped</Button>
-      </Button.Group>
+      <Grid.Container gap={2} justify="center">
+        <Grid xs={3}>
+          <Card>
+            <Card.Body>
+              <Row justify="center" align="center">
+                <Text h6 size={15} css={{ m: 0 }}>
+                  Sort by highest vin
+                </Text>
+                <Spacer x={0.5} />
+                <Switch
+                  checked={order == "serial"}
+                  onChange={() => {
+                    setOrder(order == "serial" ? "id" : "serial");
+                  }}
+                />
+              </Row>
+            </Card.Body>
+          </Card>
+        </Grid>
+        <Grid xs={9}>
+          <Card>
+            <Card.Body>
+              <Row justify="center" align="center">
+                <Button.Group color="secondary" light bordered>
+                  <Button>
+                    <Link
+                      color="secondary"
+                      className="px-12"
+                      href={{
+                        query: { perPage: perPage, offset: offset + perPage },
+                      }}
+                    >
+                      Next
+                    </Link>
+                  </Button>
+                  <Button disabled={offset <= 0}>
+                    <Link
+                      color="secondary"
+                      className="px-12"
+                      href={{
+                        query: {
+                          perPage: perPage,
+                          offset: offset - perPage > 0 ? offset - perPage : 0,
+                        },
+                      }}
+                    >
+                      Previous
+                    </Link>
+                  </Button>
+                </Button.Group>
+              </Row>
+            </Card.Body>
+          </Card>
+        </Grid>
+      </Grid.Container>
+
       <Table
         aria-label="Failcat"
         css={{
@@ -126,12 +203,13 @@ export default function Page() {
         </Table.Body>
       </Table>
       <Link
+        color="secondary"
         className="px-12"
         href={{
           query: { perPage: perPage, offset: offset + perPage },
         }}
       >
-        Next
+        Next offset: {offset} new offset: {offset + perPage}
       </Link>
       <Link
         className="px-12"
@@ -139,7 +217,7 @@ export default function Page() {
           query: { perPage: perPage, offset: offset - perPage },
         }}
       >
-        Previous
+        Previous offset: {offset} new offset: {offset - perPage}
       </Link>
     </div>
   );
