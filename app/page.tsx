@@ -1,5 +1,6 @@
 "use client";
 
+import Script from "next/script";
 import { Car, CarModel, Dealer } from "./models";
 import React, { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -35,33 +36,26 @@ async function fetchCars(
 export default function Page() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const offset = parseInt(searchParams.get("offset") ?? "") || 0;
+  const offset = parseInt(searchParams?.get("offset") ?? "") || 0;
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
   // use fetchCars(perPage, offset) to get data to show
   const [_, setOffset] = React.useState<number>(
-    parseInt(searchParams.get("offset") ?? "") || 0
+    parseInt(searchParams?.get("offset") ?? "") || 0
   );
 
   const router = useRouter();
 
   const [cars, setCars] = React.useState<Car[]>([]);
   const [perPage, setPerPage] = React.useState<number>(
-    parseInt(searchParams.get("perPage") ?? "") || 25
+    parseInt(searchParams?.get("perPage") ?? "") || 25
   );
   const [dealer, setDealer] = React.useState<string | null>(
-    searchParams.get("dealer")
+    searchParams?.get("dealer") ?? null
   );
 
-  const [order, setOrder] = React.useState<OrderBy>("serial");
+  const [order, setOrder] = React.useState<OrderBy>(
+    (searchParams?.get("order") as OrderBy) ?? ("serial" as OrderBy)
+  );
 
   React.useEffect(() => {
     fetchCars(perPage, offset, dealer, order).then((cars) => {
@@ -92,6 +86,21 @@ export default function Page() {
 
   return (
     <div>
+      <div className="container">
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJE0ZYCWJE');
+  `}
+        </Script>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
+          strategy="afterInteractive"
+        ></Script>
+      </div>
       <Grid.Container gap={2} justify="center">
         <Grid xs={3}>
           <Card>
@@ -102,7 +111,7 @@ export default function Page() {
                 </Text>
                 <Spacer x={0.5} />
                 <Switch
-                  checked={order == "serial"}
+                  checked={order != "id"}
                   onChange={() => {
                     setOrder(order == "serial" ? "id" : "serial");
                   }}
@@ -121,7 +130,11 @@ export default function Page() {
                       color="secondary"
                       className="px-12"
                       href={{
-                        query: { perPage: perPage, offset: offset + perPage },
+                        query: {
+                          perPage: perPage,
+                          offset: offset + perPage,
+                          order: order,
+                        },
                       }}
                     >
                       Next
@@ -135,6 +148,7 @@ export default function Page() {
                         query: {
                           perPage: perPage,
                           offset: offset - perPage > 0 ? offset - perPage : 0,
+                          order: order,
                         },
                       }}
                     >
@@ -188,8 +202,9 @@ export default function Page() {
                   href={{
                     query: {
                       perPage: perPage,
-                      offset: offset + perPage,
                       dealer: car.ship_to,
+                      order: order,
+                      offset: 0,
                     },
                   }}
                 >
