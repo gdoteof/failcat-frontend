@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import './globals.css'
 import { Inter } from 'next/font/google'
 
@@ -14,7 +15,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+
     <html lang="en">
+      <head>
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJE0ZYCWJE');
+  `}
+        </Script>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
+          strategy="afterInteractive"
+        ></Script>
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   )

@@ -38,7 +38,6 @@ export default function Page() {
   const pathname = usePathname();
   const offset = parseInt(searchParams?.get("offset") ?? "") || 0;
 
-  // use fetchCars(perPage, offset) to get data to show
   const [_, setOffset] = React.useState<number>(
     parseInt(searchParams?.get("offset") ?? "") || 0
   );
@@ -86,21 +85,6 @@ export default function Page() {
 
   return (
     <div>
-      <div className="container">
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-DJE0ZYCWJE');
-  `}
-        </Script>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
-          strategy="afterInteractive"
-        ></Script>
-      </div>
       <Grid.Container gap={2} justify="center">
         <Grid xs={3}>
           <Card>
@@ -170,6 +154,7 @@ export default function Page() {
         }}
       >
         <Table.Header>
+          <Table.Column>Details</Table.Column>
           <Table.Column>Serial Number</Table.Column>
           <Table.Column>Vin</Table.Column>
           <Table.Column>Ext Color</Table.Column>
@@ -183,7 +168,18 @@ export default function Page() {
         <Table.Body>
           {cars.map((car) => (
             <Table.Row key={car.serial_number}>
-              <Table.Cell>{car.serial_number}</Table.Cell>
+              <Table.Cell>
+                <Link href={`/car/${car.id}`}>
+                  <Button auto>
+                    Details
+                  </Button>
+                </Link>
+              </Table.Cell>
+              <Table.Cell>
+                <Link href={`/car/${car.id}`}>
+                  {car.serial_number}
+                </Link>
+              </Table.Cell>
               <Table.Cell>
                 {highlightLastSix(car.vin)}
                 <a
@@ -194,7 +190,11 @@ export default function Page() {
               </Table.Cell>
               <Table.Cell>{car.ext_color}</Table.Cell>
               <Table.Cell>{car.int_color}</Table.Cell>
-              <Table.Cell>{car.car_model}</Table.Cell>
+              <Table.Cell>
+                <Link href={`/car/${car.id}`}>
+                  {car.car_model}
+                </Link>
+              </Table.Cell>
               <Table.Cell>{car.opt_code}</Table.Cell>
               <Table.Cell>
                 <Link

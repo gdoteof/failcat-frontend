@@ -1,47 +1,100 @@
-
 // Importing necessary libraries and components
-import { Grid, Card, Text } from '@nextui-org/react';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
-import { Car } from '../models'; 
-
+import {
+  Grid,
+  Card,
+  Text,
+  Spacer,
+  Divider,
+  useTheme,
+  Link,
+} from "@nextui-org/react";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { Car } from "../models";
+import Image from "next/image";
 
 // Car Detail Component
-const CarDetail = ( {carData} : { carData: Car }): JSX.Element => {
-  return (
-    <Grid.Container gap={2} justify="center">
-      <Grid xs={24} sm={24} md={12}>
-        <Card>
-          <Text h4>{carData.car_model}</Text>
-          <Text>
-            VIN: {carData.vin}
-          </Text>
-          {/* Add other car details here */}
-        </Card>
-      </Grid>
-    <Grid xs={24} sm={24} md={16}>
-        <iframe src={`https://failcat-rust.vteng.io/window-sticker/${carData.vin}`} width="100%" height="100%" title="window-sticker"/>
-    </Grid>
-    </Grid.Container>
-  );
+const colorNameToImage: { [key: string]: string } = {
+  BLACK: "black",
+  GRAY: "gray",
+  "NAVY/GRAY": "gray-and-navy",
 };
 
-// Page Component
-const CarCard = ({ id }: { id: number }) => {
-  const [carData, setCarData] = useState(null);
+const modelToMaterial: { [key: string]: string } = {
+  LX: "syntex",
+  S: "syntex",
+  SXP: "nappa",
+  EX: "leather",
+  SX: "leather",
+  "EX X-LINE": "leather",
+  "SX X-PRO": "nappa",
+  "SXP X-LINE": "nappa",
+};
 
-  useEffect(() => {
-    const fetchCarData = async () => {
-      const { data } = await axios.get(`https://failcat-rust.vteng.io/car/${id}`);
-      setCarData(data);
+const CarCard = ({ car }: { car: Car }) => {
+  // Map color names to RGB values
+  const interiorColorImage = colorNameToImage[car.int_color];
+
+  // Function to get the image source based on car model and exterior color
+  const getImageSource = () => {
+    const modelSlugMapping: { [key: string]: string } = {
+      "EX X-LINE": "ex-x-line",
+      LX: "lx",
+      "SX X-LINE": "sx-x-line",
+      SX: "sx",
+      SXP: "sxp",
+      EX: "ex",
+      S: "s",
+      "SX X-PRO": "sx-x-pro",
+      "SXP X-LINE": "sxp-x-line",
     };
-    fetchCarData();
-  }, [id]);
+    const modelName = car.car_model.split(" ")[2]; // Assuming the model name is always the third word
+    const modelSlug = modelSlugMapping[modelName];
+    const colorSlug = car.ext_color.toLowerCase().replace(/ /g, "-"); // Convert color to lowercase and replace all spaces with hyphens
+
+    return `/static/img/${modelSlug}/${colorSlug}/01.png`;
+  };
+
+  const getSwatchImage = () => {
+    let material = modelToMaterial[car.car_model.split(" ")[2]];
+    return `/static/img/${car.int_color.toLowerCase()}--${material}--seat-trim.png`;
+  };
 
   return (
-    <div>
-      {carData && <CarDetail carData={carData} />}
-    </div>
+    <Grid.Container gap={2} justify="center">
+      <Grid xs={24} md={12}>
+        <Card>
+          <Card.Body>
+            <Card.Image
+              src={getImageSource()}
+              alt="me"
+              width="480"
+              height="240"
+            />
+            <Text h3>{car.car_model}</Text>
+            <Text h5>{car.year}</Text>
+            <Divider y={1} />
+            <Text>VIN: {car.vin}</Text>
+            <Divider y={1} />
+            <Text>Interior color: {car.int_color}</Text>
+            <Image
+              src={getSwatchImage()}
+              alt={car.int_color}
+              width="50"
+              height="50"
+            />
+            <Spacer y={1} />
+            <Text>Exterior color: {car.ext_color}</Text>
+            <Divider y={1} />
+            <Text>
+              Dealer: <Link className="px-12" href={`/?dealer=${car.ship_to}`}>
+                {car.ship_to}
+              </Link>
+            </Text>
+          </Card.Body>
+        </Card>
+      </Grid>
+    </Grid.Container>
   );
 };
 
