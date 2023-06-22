@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CarCard from "@/app/components/car";
 import { Car } from "@/app/models";
+import Head from 'next/head'
+
 
 async function fetchCar(id: number): Promise<Car> {
   const url = `https://failcat-rust.vteng.io/car/${id}`;
@@ -19,5 +21,19 @@ export default function Page() {
     }
   }, [router.query.id]);
 
-  return car ? <CarCard car={car} /> : <div>Car not found</div>;
+  const getTitle = () => {
+    return `Failcat - ${car?.car_model} - ${car?.vin}`
+  }
+
+//
+  return (
+  <div>
+    <Head>
+      <title>
+        {getTitle()}
+      </title>
+    </Head>
+    { car && <CarCard car={car} /> || <p>Loading...</p>}
+  </div>
+  );
 }

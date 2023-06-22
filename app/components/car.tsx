@@ -5,14 +5,14 @@ import {
   Text,
   Spacer,
   Divider,
+  Image,
   useTheme,
   Link,
 } from "@nextui-org/react";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, FC, ReactElement, Suspense } from "react";
+import dynamic from 'next/dynamic';
 import { Car } from "../models";
-import Image from "next/image";
-// import swatches from pages/car/black--leather--seat-trim.png pages/car/black--nappa--seat-trim.png pages/car/black--syntex--seat-trim.png pages/car/gray--leather--seat-trim.png pages/car/gray--nappa--seat-trim.png pages/car/gray--syntex--seat-trim.png pages/car/gray-and-navy--leather--seat-trim.png pages/car/gray-and-navy--nappa--seat-trim.png
 
 // Car Detail Component
 const colorNameToImage: { [key: string]: string } = {
@@ -47,53 +47,22 @@ const modelToMaterial: { [key: string]: string } = {
   "SX X-LINE": "leather",
 };
 
-// Import images
-import blackLeatherTrim from './black--leather--seat-trim.png';
-import blackNappaTrim from './black--nappa--seat-trim.png';
-import blackSyntexTrim from './black--syntex--seat-trim.png';
-import grayLeatherTrim from './gray--leather--seat-trim.png';
-import grayNappaTrim from './gray--nappa--seat-trim.png';
-import graySyntexTrim from './gray--syntex--seat-trim.png';
-import grayAndNavyLeatherTrim from './gray-and-navy--leather--seat-trim.png';
-import grayAndNavyNappaTrim from './gray-and-navy--nappa--seat-trim.png';
-
-// Map images to material and color
-const swatches = {
-  black: {
-    leather: blackLeatherTrim,
-    nappa: blackNappaTrim,
-    syntex: blackSyntexTrim,
-  },
-  gray: {
-    leather: grayLeatherTrim,
-    nappa: grayNappaTrim,
-    syntex: graySyntexTrim,
-  },
-  'gray-and-navy': {
-    leather: grayAndNavyLeatherTrim,
-    nappa: grayAndNavyNappaTrim,
-  },
-};
-
-
-const CarCard = ({ car }: { car: Car }) => {
-  // Map color names to RGB values
+const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
   const interiorColorImage = colorNameToImage[car.int_color];
   const modelName = Object.keys(modelSlugMapping).find((model: string) => car.car_model.includes(model));
 
-  // Function to get the image source based on car model and exterior color
-  const getImageSource = () => {
+  const getImageSource = (): string => {
     const modelSlug = modelSlugMapping[modelName??""];
     const colorSlug = car.ext_color.toLowerCase().replace(/ /g, "-"); // Convert color to lowercase and replace all spaces with hyphens
 
     return `/static/img/${modelSlug}/${colorSlug}/01.png`;
   };
 
-
-  const getSwatchImage = () => {
+  const getSwatchImageSrc = (): string => {
     let material = modelToMaterial[modelName??""];
     let color = interiorColorImage.toLowerCase();
-    return (swatches as any)[color][material];
+
+    return `/static/img/${color}--${material}--seat-trim.png`;
   };
 
   return (
@@ -113,12 +82,11 @@ const CarCard = ({ car }: { car: Car }) => {
             <Text>VIN: {car.vin}</Text>
             <Divider y={1} />
             <Text>Interior color: {car.int_color}</Text>
-            <Image
-              src={getSwatchImage()}
-              alt={car.int_color}
-              width="40"
-              height="40"
-            />
+            {/* Wrap the DynamicImage component with Suspense and provide a fallback */}
+            <Suspense fallback={<div>Loading...</div>}>
+
+              <Image src={getSwatchImageSrc()} width="40" height="40" alt="swatch"/>
+            </Suspense>
             <Spacer y={1} />
             <Text>Exterior color: {car.ext_color}</Text>
             <Divider y={1} />
