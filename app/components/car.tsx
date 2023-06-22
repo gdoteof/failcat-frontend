@@ -15,17 +15,17 @@ import Image from "next/image";
 
 // Car Detail Component
 const colorNameToImage: { [key: string]: string } = {
-  BLACK: "black",
-  GRAY: "gray",
+  "BLACK": "black",
+  "GRAY": "gray",
   "NAVY/GRAY": "gray-and-navy",
 };
 
 const modelToMaterial: { [key: string]: string } = {
-  LX: "syntex",
-  S: "syntex",
-  SXP: "nappa",
-  EX: "leather",
-  SX: "leather",
+  "LX": "syntex",
+  "S": "syntex",
+  "SXP": "nappa",
+  "EX": "leather",
+  "SX": "leather",
   "EX X-LINE": "leather",
   "SX X-PRO": "nappa",
   "SXP X-LINE": "nappa",
@@ -87,7 +87,7 @@ const CarCard = ({ car }: { car: Car }) => {
             <Text>Exterior color: {car.ext_color}</Text>
             <Divider y={1} />
             <Text>
-              Dealer: <Link className="px-12" href={`/?dealer=${car.ship_to}`}>
+              <Link className="px-12" href={`/?dealer=${car.ship_to}`}>
                 {car.ship_to}
               </Link>
             </Text>
