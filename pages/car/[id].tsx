@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import CarCard from "@/app/components/car";
 import { Car } from "@/app/models";
 import Head from 'next/head'
+import Script from "next/script";
 
 
 async function fetchCar(id: number): Promise<Car> {
@@ -28,6 +29,19 @@ export default function Page() {
 //
   return (
   <div>
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJE0ZYCWJE');
+  `}
+        </Script>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
+          strategy="afterInteractive"
+        ></Script>
     <Head>
       <title>
         {getTitle()}
