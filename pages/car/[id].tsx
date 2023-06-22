@@ -23,7 +23,7 @@ export default function Page() {
   }, [router.query.id]);
 
   const getTitle = () => {
-    return `Failcat - ${car?.car_model} - ${car?.vin}`
+    return car  ?  `Failcat - ${car?.car_model} - ${car?.vin}` : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`
   }
 
 //

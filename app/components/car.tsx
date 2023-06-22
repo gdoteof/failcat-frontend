@@ -8,6 +8,8 @@ import {
   Image,
   useTheme,
   Link,
+  Row,
+  Col,
 } from "@nextui-org/react";
 import axios from "axios";
 import { useState, useEffect, FC, ReactElement, Suspense } from "react";
@@ -66,39 +68,40 @@ const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
   };
 
   return (
-    <Grid.Container gap={2} justify="center">
-      <Grid xs={24} md={12}>
         <Card>
-          <Card.Body>
-            <Card.Image
-              src={getImageSource()}
-              alt="me"
-              width="480"
-              height="240"
-            />
-            <Text h3>{car.car_model}</Text>
-            <Text h5>{car.year}</Text>
-            <Divider y={1} />
-            <Text>VIN: {car.vin}</Text>
-            <Divider y={1} />
-            <Text>Interior color: {car.int_color}</Text>
-            {/* Wrap the DynamicImage component with Suspense and provide a fallback */}
-            <Suspense fallback={<div>Loading...</div>}>
-
-              <Image src={getSwatchImageSrc()} width="40" height="40" alt="swatch"/>
-            </Suspense>
-            <Spacer y={1} />
-            <Text>Exterior color: {car.ext_color}</Text>
-            <Divider y={1} />
-            <Text>
-              <Link className="px-12" href={`/?dealer=${car.ship_to}`}>
-                {car.ship_to}
-              </Link>
+        <Card.Header>
+          <Col>
+          <Row>
+            <Text size={12} weight="bold">
+              {modelName}
             </Text>
+          </Row>
+          </Col>
+        </Card.Header>
+          <Card.Image
+            src={getImageSource()}
+            alt="me"
+            width="480"
+            height="240"
+          />
+          <Card.Body>
           </Card.Body>
+          <Card.Footer css={{ justifyItems: "flex-start" }}>
+              <Col>
+              <Row justify="space-between" align="center">
+                <Text>Ext: {car.ext_color}</Text>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Image src={getSwatchImageSrc()} width="40" height="40" alt="swatch"/>
+                </Suspense>
+              </Row>
+              <Row>
+                <Text size={12}>
+                  {car.vin}
+                </Text>
+              </Row>
+</Col>
+            </Card.Footer>
         </Card>
-      </Grid>
-    </Grid.Container>
   );
 };
 
