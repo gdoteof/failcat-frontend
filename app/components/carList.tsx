@@ -6,6 +6,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Button,
+  Image,
   Card,
   Container,
   Grid,
@@ -18,6 +19,7 @@ import {
 import { MdPictureAsPdf } from "react-icons/md";
 import { format } from "date-fns";
 import { Car } from "../models";
+import { getCarImageSource, getSwatchImageSrc, modelSlugMapping } from "../helpers/carImages";
 
 type OrderBy = "id" | "serial";
 
@@ -60,6 +62,8 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
     }
   };
 
+
+const normalizedModelName =  (car: Car) => {Object.keys(modelSlugMapping).find((model: string) => car.car_model.includes(model))};
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
 
@@ -75,11 +79,10 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
       >
         <Table.Header>
           <Table.Column>Details</Table.Column>
-          <Table.Column>Serial Number</Table.Column>
           <Table.Column>Vin</Table.Column>
           <Table.Column>Ext Color</Table.Column>
           <Table.Column>Int Color</Table.Column>
-          <Table.Column>Car Model</Table.Column>
+          <Table.Column>Trim</Table.Column>
           <Table.Column>Opt Code</Table.Column>
           <Table.Column>Dealer</Table.Column>
           <Table.Column>Model Year</Table.Column>
@@ -93,7 +96,6 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
                   <Button auto>Details</Button>
                 </Link>
               </Table.Cell>
-              <Table.Cell>{car.serial_number}</Table.Cell>
               <Table.Cell>
                 {highlightLastSix(car.vin)}
                 <a
@@ -102,9 +104,13 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
                   <MdPictureAsPdf />
                 </a>
               </Table.Cell>
-              <Table.Cell>{car.ext_color}</Table.Cell>
-              <Table.Cell>{car.int_color}</Table.Cell>
-              <Table.Cell>{car.car_model}</Table.Cell>
+              <Table.Cell>
+                <Image src={getCarImageSource(car, "carSwatch")} width="80px" height="40px" alt={car.ext_color}/>
+              </Table.Cell>
+              <Table.Cell>
+                <Image src={getSwatchImageSrc(car)} width="40" height="40" alt={car.int_color}/>
+              </Table.Cell>
+              <Table.Cell>{car.car_model.slice(14)}</Table.Cell>
               <Table.Cell>{car.opt_code}</Table.Cell>
               <Table.Cell>
                 <Button auto>
@@ -119,23 +125,6 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
           ))}
         </Table.Body>
       </Table>
-      <Link
-        color="secondary"
-        className="px-12"
-        href={{
-          query: { perPage: perPage, offset: offset + perPage },
-        }}
-      >
-        Next offset: {offset} new offset: {offset + perPage}
-      </Link>
-      <Link
-        className="px-12"
-        href={{
-          query: { perPage: perPage, offset: offset - perPage },
-        }}
-      >
-        Previous offset: {offset} new offset: {offset - perPage}
-      </Link>
     </div>
   );
 }

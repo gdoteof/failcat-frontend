@@ -21,8 +21,8 @@ import {
   Table,
   Text,
 } from "@nextui-org/react";
-import { KiaTelluride } from "./types/Telluride";
 import { MdOutlineHome } from "react-icons/md";
+import { KiaTelluride } from "./types/KiaTelluride";
 type OrderBy = "id" | "serial";
 
 const telluride = new KiaTelluride(2023);
@@ -60,8 +60,7 @@ export default function Page() {
               </Dropdown.Menu>
             </Dropdown>
 
-  return (
-    <Container>
+  const NavItems = () =>  { return (
       <Row justify="space-between" align="center" css={{ p: "$12" }}>
         <Col>
           <Button icon={<MdOutlineHome/>} onClick={() => setOffset(0)} css={{ px: "$5" }} auto/>
@@ -108,19 +107,17 @@ export default function Page() {
             </Row>
         </Col>
       </Row>
-      
+  )};
+  return (
+    <Container>
+      <NavItems />
       <CarList
         perPage={perPage}
         offset={offset}
         dealer={dealer ?? ""}
         order={order}
       />
-      <Row>
-        <Text h4>Debug</Text>
-        <Text>sort: {order}</Text>
-        <Text>offset: {offset}</Text>
-        <Text>perPage: {perPage}</Text>
-      </Row>
+      <NavItems />
     </Container>
   );
 }
