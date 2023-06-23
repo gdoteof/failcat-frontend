@@ -61,7 +61,8 @@ const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
   };
 
   const getSwatchImageSrc = (): string => {
-    let material = modelToMaterial[modelName??""];
+    let material = modelToMaterial[modelName??""] ?? "syntex";
+    console.log(car.car_model,modelName,material);
     let color = interiorColorImage.toLowerCase();
 
     return `/static/img/${color}--${material}--seat-trim.png`;
@@ -71,35 +72,33 @@ const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
         <Card>
         <Card.Header>
           <Col>
-          <Row>
-            <Text size={12} weight="bold">
+          <Row justify="space-between" align="center" css={{p: '$12'}}>
+            <Text>{car.ext_color}</Text>
+            <Text weight="bold">
               {modelName}
             </Text>
           </Row>
           </Col>
         </Card.Header>
+          <Card.Body css={{ p: 0 }}>
           <Card.Image
             src={getImageSource()}
             alt="me"
             width="480"
             height="240"
           />
-          <Card.Body>
           </Card.Body>
-          <Card.Footer css={{ justifyItems: "flex-start" }}>
-              <Col>
-              <Row justify="space-between" align="center">
-                <Text>Ext: {car.ext_color}</Text>
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Image src={getSwatchImageSrc()} width="40" height="40" alt="swatch"/>
-                </Suspense>
-              </Row>
-              <Row>
-                <Text size={12}>
-                  {car.vin}
-                </Text>
-              </Row>
-</Col>
+          <Card.Footer>
+                <Row justify="space-between" css={{p: '$12'}}>
+                  <Col>
+                      <Text size={12}>
+                        {car.vin}
+                      </Text>
+                  </Col>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Image src={getSwatchImageSrc()} width="40" height="40" alt="swatch"/>
+                  </Suspense>
+                </Row>
             </Card.Footer>
         </Card>
   );

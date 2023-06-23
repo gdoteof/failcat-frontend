@@ -176,9 +176,7 @@ export default function Page() {
                 </Link>
               </Table.Cell>
               <Table.Cell>
-                <Link href={`/car/${car.id}`}>
                   {car.serial_number}
-                </Link>
               </Table.Cell>
               <Table.Cell>
                 {highlightLastSix(car.vin)}
@@ -191,25 +189,18 @@ export default function Page() {
               <Table.Cell>{car.ext_color}</Table.Cell>
               <Table.Cell>{car.int_color}</Table.Cell>
               <Table.Cell>
-                <Link href={`/car/${car.id}`}>
                   {car.car_model}
-                </Link>
               </Table.Cell>
               <Table.Cell>{car.opt_code}</Table.Cell>
               <Table.Cell>
-                <Link
-                  className="px-12"
-                  href={{
-                    query: {
-                      perPage: perPage,
-                      dealer: car.ship_to,
-                      order: order,
-                      offset: 0,
-                    },
-                  }}
-                >
-                  {car.ship_to}
-                </Link>
+                <Button>
+                  <Link
+                    className="px-12"
+                    href={`/dealer/${car.ship_to}`}
+                  >
+                    {car.ship_to}
+                  </Link>
+                </Button>
               </Table.Cell>
               <Table.Cell>{car.model_year}</Table.Cell>
               <Table.Cell>{prettyDate(car.created_date)}</Table.Cell>

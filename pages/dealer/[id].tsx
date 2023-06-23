@@ -5,7 +5,7 @@ import { Car, Dealer } from "@/app/models";
 import Head from 'next/head'
 import Script from "next/script";
 import DealerCard from "@/app/components/dealer/card";
-import { Grid } from "@nextui-org/react";
+import { Col, Grid, Row } from "@nextui-org/react";
 
 
 async function fetchDealer(dealer_code: string): Promise<Dealer> {
@@ -54,15 +54,19 @@ export default function Page() {
         {getTitle()}
       </title>
     </Head>
-    <Grid.Container gap={2} justify="flex-start">
-      <Grid xs={24} md={24}>
+    <Col>
+    <Row>
         { dealer && <DealerCard dealer={dealer} /> || <p>Loading...</p>}
-      </Grid>
-        {cars.map((car, index) => 
-          <Grid xs={4} md={6} key={index}>
-            <CarCard car={car} key={car.id}/>
-          </Grid>)}
-    </Grid.Container>
+    </Row>
+    <Row>
+      <Grid.Container gap={2} justify="space-between">
+          {cars.map((car, index) => 
+            <Grid xs={6} md={4} key={index}>
+              <CarCard car={car} key={car.id}/>
+            </Grid>)}
+      </Grid.Container>
+    </Row>
+    </Col>
   </div>
   );
 }
