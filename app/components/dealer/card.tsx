@@ -17,16 +17,12 @@ import { Dealer } from "@/app/models";
 
 const DealerCard: FC<{ dealer: Dealer }> = ({ dealer }: { dealer: Dealer }) => {
   return (
-    <Grid.Container gap={2} justify="center">
-      <Grid xs={24} md={12}>
         <Card>
           <Card.Body>
             <Text h4>{dealer.dealer_code}</Text>
             <Text h4>{dealer.address}</Text>
           </Card.Body>
         </Card>
-      </Grid>
-    </Grid.Container>
   );
 };
 

@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 import { useState, useEffect, FC, ReactElement, Suspense } from "react";
 import dynamic from 'next/dynamic';
-import { Car } from "../models";
+import { Car } from "../../models";
 
 // Car Detail Component
 const colorNameToImage: { [key: string]: string } = {

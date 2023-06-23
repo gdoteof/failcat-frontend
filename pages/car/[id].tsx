@@ -1,10 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import CarCard from "@/app/components/car";
 import { Car } from "@/app/models";
-import Head from 'next/head'
+import Head from "next/head";
 import Script from "next/script";
-
+import CarCard from "@/app/components/car/card";
 
 async function fetchCar(id: number): Promise<Car> {
   const url = `https://failcat-rust.vteng.io/car/${id}`;
@@ -23,31 +22,31 @@ export default function Page() {
   }, [router.query.id]);
 
   const getTitle = () => {
-    return car  ?  `Failcat - ${car?.car_model} - ${car?.vin}` : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`
-  }
+    return car
+      ? `Failcat - ${car?.car_model} - ${car?.vin}`
+      : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`;
+  };
 
-//
+  //
   return (
-  <div>
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
+    <div>
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-DJE0ZYCWJE');
   `}
-        </Script>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
-          strategy="afterInteractive"
-        ></Script>
-    <Head>
-      <title>
-        {getTitle()}
-      </title>
-    </Head>
-    { car && <CarCard car={car} /> || <p>Loading...</p>}
-  </div>
+      </Script>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
+        strategy="afterInteractive"
+      ></Script>
+      <Head>
+        <title>{getTitle()}</title>
+      </Head>
+      {(car && <CarCard car={car} />) || <p>Loading...</p>}
+    </div>
   );
 }

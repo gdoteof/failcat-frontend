@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import CarCard from "@/app/components/car";
+import CarCard from "@/app/components/car/card";
 import { Car, Dealer } from "@/app/models";
 import Head from "next/head";
 import Script from "next/script";
