@@ -2,11 +2,10 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CarCard from "@/app/components/car";
 import { Car, Dealer } from "@/app/models";
-import Head from 'next/head'
+import Head from "next/head";
 import Script from "next/script";
 import DealerCard from "@/app/components/dealer/card";
-import { Col, Grid, Row } from "@nextui-org/react";
-
+import { Col, Container, Grid, Row } from "@nextui-org/react";
 
 async function fetchDealer(dealer_code: string): Promise<Dealer> {
   const url = `https://failcat-rust.vteng.io/dealers/${dealer_code}`;
@@ -25,48 +24,51 @@ export default function Page() {
 
   useEffect(() => {
     router.query.id &&
-      fetchDealer(router.query.id as string).then((Dealer) => setDealer(Dealer));
-      fetchDealerCars(router.query.id as string).then((cars) => setCars(cars));
+      fetchDealer(router.query.id as string).then((Dealer) =>
+        setDealer(Dealer)
+      );
+    fetchDealerCars(router.query.id as string).then((cars) => setCars(cars));
   }, [router.query.id]);
 
   const getTitle = () => {
-    return Dealer  ?  `Failcat - Dealer: ${dealer?.dealer_code}` : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`
-  }
+    return Dealer
+      ? `Failcat - Dealer: ${dealer?.dealer_code}`
+      : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`;
+  };
 
-//
+  //
   return (
-  <div>
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
+    <Container>
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-DJE0ZYCWJE');
   `}
-        </Script>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
-          strategy="afterInteractive"
-        ></Script>
-    <Head>
-      <title>
-        {getTitle()}
-      </title>
-    </Head>
-    <Col>
-    <Row>
-        { dealer && <DealerCard dealer={dealer} /> || <p>Loading...</p>}
-    </Row>
-    <Row>
-      <Grid.Container gap={2} justify="space-between">
-          {cars.map((car, index) => 
-            <Grid xs={6} md={4} key={index}>
-              <CarCard car={car} key={car.id}/>
-            </Grid>)}
-      </Grid.Container>
-    </Row>
-    </Col>
-  </div>
+      </Script>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
+        strategy="afterInteractive"
+      ></Script>
+      <Head>
+        <title>{getTitle()}</title>
+      </Head>
+      <Col>
+        <Row>
+          {(dealer && <DealerCard dealer={dealer} />) || <p>Loading...</p>}
+        </Row>
+        <Row>
+          <Grid.Container gap={2} justify="space-between">
+            {cars.map((car, index) => (
+              <Grid xs={6} md={4} key={index}>
+                <CarCard car={car} key={car.id} />
+              </Grid>
+            ))}
+          </Grid.Container>
+        </Row>
+      </Col>
+    </Container>
   );
 }

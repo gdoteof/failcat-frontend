@@ -48,6 +48,12 @@ const modelToMaterial: { [key: string]: string } = {
   "SX X-PRO": "leather",
   "SX X-LINE": "leather",
 };
+const getImageDeliveryPath = (path: string, variant: string): string => {
+  if (process.env.NODE_ENV === 'production') {
+    return `/cdn-cgi/imagedelivery/9ezxd7-onYNaEN1_lszogQ/${path}/${variant}`;
+  }
+  return `/static/img/${path}`;
+};
 
 const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
   const interiorColorImage = colorNameToImage[car.int_color];
@@ -57,7 +63,7 @@ const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
     const modelSlug = modelSlugMapping[modelName??""];
     const colorSlug = car.ext_color.toLowerCase().replace(/ /g, "-"); // Convert color to lowercase and replace all spaces with hyphens
 
-    return `/static/img/${modelSlug}/${colorSlug}/01.png`;
+    return getImageDeliveryPath(`${modelSlug}/${colorSlug}/01.png`, 'mediumCarCard');
   };
 
   const getSwatchImageSrc = (): string => {
@@ -65,7 +71,7 @@ const CarCard: FC<{ car: Car }> = ({ car }: { car: Car }) => {
     console.log(car.car_model,modelName,material);
     let color = interiorColorImage.toLowerCase();
 
-    return `/static/img/${color}--${material}--seat-trim.png`;
+    return getImageDeliveryPath(`${color}--${material}--seat-trim.png`,'public');
   };
 
   return (
