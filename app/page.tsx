@@ -8,7 +8,6 @@ import React, { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Badge,
   Button,
   Card,
   Col,
@@ -24,9 +23,9 @@ import {
 import { MdOutlineHome } from "react-icons/md";
 import { KiaTelluride } from "./types/KiaTelluride";
 type OrderBy = "id" | "serial";
+import ReactGA from "react-ga4";
 
 const telluride = new KiaTelluride(2023);
-
 
 export default function Page() {
   const [offset, setOffset] = React.useState<number>(0);
@@ -37,33 +36,55 @@ export default function Page() {
   const [order, setOrder] = React.useState<OrderBy>("serial");
   const [models, setModels] = React.useState<string[]>(telluride.trims);
 
+  const currentPage = () => offset / perPage + 1;
+  ReactGA.send({
+    hitType: "pageview",
+    title: `Homepage page: ${currentPage()}`,
+  });
+
   const nextPage = () => {
+    ReactGA.send({
+      hitType: "pageview",
+      title: `Homepage page: ${currentPage()}`,
+    });
     setOffset(offset + perPage);
   };
   const prevPage = () => {
+    ReactGA.send({
+      hitType: "pageview",
+      title: `Homepage page: ${currentPage()}`,
+    });
     if (offset - perPage < 0) {
       setOffset(0);
     }
     setOffset(offset - perPage);
   };
-  const trimOptions =  () => 
-            <Dropdown>
-              <Dropdown.Button flat>Trims</Dropdown.Button>
-              <Dropdown.Menu
-                aria-label="Static Actions"
-                selectionMode="multiple"
-                selectedKeys={models}
-              >
-                {models.map((model) => {
-                  return <Dropdown.Item key={model}>{model}</Dropdown.Item>;
-                })}
-              </Dropdown.Menu>
-            </Dropdown>
 
-  const NavItems = () =>  { return (
+  const trimOptions = () => (
+    <Dropdown>
+      <Dropdown.Button flat>Trims</Dropdown.Button>
+      <Dropdown.Menu
+        aria-label="Static Actions"
+        selectionMode="multiple"
+        selectedKeys={models}
+      >
+        {models.map((model) => {
+          return <Dropdown.Item key={model}>{model}</Dropdown.Item>;
+        })}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
+  const NavItems = () => {
+    return (
       <Row justify="space-between" align="center" css={{ p: "$12" }}>
         <Col>
-          <Button icon={<MdOutlineHome/>} onClick={() => setOffset(0)} css={{ px: "$5" }} auto/>
+          <Button
+            icon={<MdOutlineHome />}
+            onClick={() => setOffset(0)}
+            css={{ px: "$5" }}
+            auto
+          />
           <Spacer x={1} />
         </Col>
         <Col>
@@ -85,29 +106,29 @@ export default function Page() {
           </Button.Group>
         </Col>
         <Col>
-            <Row justify="space-around">
-              <Col>
-                <Button onClick={prevPage} disabled={offset - perPage < 0} auto>
-                  {`< Prev `}
-                </Button>
-              </Col>
-              <Col>
-                <Row>
-                  <Text b>Page:</Text>
-                  <Spacer x={0.5} />
-                  <Text>{offset / perPage}</Text>
-                </Row>
-              </Col>
-              <Col>
-                <Button onClick={nextPage} auto>
-                  {`Next >`}
-                </Button>
-              </Col>
-
-            </Row>
+          <Row justify="space-around">
+            <Col>
+              <Button onClick={prevPage} disabled={offset - perPage < 0} auto>
+                {`< Prev `}
+              </Button>
+            </Col>
+            <Col>
+              <Row>
+                <Text b>Page:</Text>
+                <Spacer x={0.5} />
+                <Text>{currentPage()}</Text>
+              </Row>
+            </Col>
+            <Col>
+              <Button onClick={nextPage} auto>
+                {`Next >`}
+              </Button>
+            </Col>
+          </Row>
         </Col>
       </Row>
-  )};
+    );
+  };
   return (
     <Container>
       <NavItems />

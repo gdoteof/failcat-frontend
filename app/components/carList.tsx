@@ -1,5 +1,5 @@
 "use client";
-
+import ReactGA from "react-ga4";
 import useSWR from "swr";
 import React, { FC } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -19,7 +19,11 @@ import {
 import { MdPictureAsPdf } from "react-icons/md";
 import { format } from "date-fns";
 import { Car } from "../models";
-import { getCarImageSource, getSwatchImageSrc, modelSlugMapping } from "../helpers/carImages";
+import {
+  getCarImageSource,
+  getSwatchImageSrc,
+  modelSlugMapping,
+} from "../helpers/carImages";
 
 type OrderBy = "id" | "serial";
 
@@ -36,7 +40,22 @@ function getCarUrl(
   const url = `https://failcat-rust.vteng.io/cars?perpage=${perPage}&offset=${offset}${maybeDealerQuery}&order=${order}`;
   return url;
 }
-const CarList: FC<{ perPage: number, offset: number, dealer: string, order: OrderBy }> = ({ perPage, offset, dealer, order }: { perPage: number, offset: number, dealer: string, order: OrderBy }) => {
+const CarList: FC<{
+  perPage: number;
+  offset: number;
+  dealer: string;
+  order: OrderBy;
+}> = ({
+  perPage,
+  offset,
+  dealer,
+  order,
+}: {
+  perPage: number;
+  offset: number;
+  dealer: string;
+  order: OrderBy;
+}) => {
   const { data, error, isLoading } = useSWR(
     getCarUrl(perPage, offset, dealer, order),
     fetcher
@@ -62,14 +81,36 @@ const CarList: FC<{ perPage: number, offset: number, dealer: string, order: Orde
     }
   };
 
+  const trackSelection = (car: Car) => {
+    //chatgpt fill this in
+    ReactGA.event("select_item", {
+      dealer: car.dealer,
+      model: car.model,
+      color: car.ext_color,
+      type: "car",
+    });
+  };
 
-const normalizedModelName =  (car: Car) => {Object.keys(modelSlugMapping).find((model: string) => car.car_model.includes(model))};
+  const trackWindowSticker = (car: Car) => {
+    //chatgpt fill this in
+    ReactGA.event("select_item", {
+      dealer: car.dealer,
+      model: car.model,
+      color: car.ext_color,
+      type: "window_sticker",
+    });
+  };
+
+  const normalizedModelName = (car: Car) => {
+    Object.keys(modelSlugMapping).find((model: string) =>
+      car.car_model.includes(model)
+    );
+  };
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
 
   return (
     <div>
-
       <Table
         aria-label="Failcat"
         css={{
@@ -93,30 +134,41 @@ const normalizedModelName =  (car: Car) => {Object.keys(modelSlugMapping).find((
             <Table.Row key={car.serial_number}>
               <Table.Cell>
                 <Link href={`/car/${car.id}`}>
-                  <Button auto>Details</Button>
+                  <Button auto onClick={() => trackSelection(car)}>
+                    Details
+                  </Button>
                 </Link>
               </Table.Cell>
               <Table.Cell>
                 {highlightLastSix(car.vin)}
                 <a
+                  onClick={() => trackWindowSticker(car)}
                   href={`https://failcat-rust.vteng.io/window-sticker/${car.vin}`}
                 >
                   <MdPictureAsPdf />
                 </a>
               </Table.Cell>
               <Table.Cell>
-                <Image src={getCarImageSource(car, "carSwatch")} width="80px" height="40px" alt={car.ext_color}/>
+                <Image
+                  src={getCarImageSource(car, "carSwatch")}
+                  width="80px"
+                  height="40px"
+                  alt={car.ext_color}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Image src={getSwatchImageSrc(car)} width="40" height="40" alt={car.int_color}/>
+                <Image
+                  src={getSwatchImageSrc(car)}
+                  width="40"
+                  height="40"
+                  alt={car.int_color}
+                />
               </Table.Cell>
               <Table.Cell>{car.car_model.slice(14)}</Table.Cell>
               <Table.Cell>{car.opt_code}</Table.Cell>
               <Table.Cell>
                 <Button auto>
-                  <Link href={`/dealer/${car.ship_to}`}>
-                    {car.ship_to}
-                  </Link>
+                  <Link href={`/dealer/${car.ship_to}`}>{car.ship_to}</Link>
                 </Button>
               </Table.Cell>
               <Table.Cell>{car.model_year}</Table.Cell>
@@ -127,6 +179,6 @@ const normalizedModelName =  (car: Car) => {Object.keys(modelSlugMapping).find((
       </Table>
     </div>
   );
-}
+};
 
 export default CarList;

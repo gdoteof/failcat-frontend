@@ -1,3 +1,4 @@
+import ReactGA from "react-ga4";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CarCard from "@/app/components/car/card";
@@ -35,6 +36,12 @@ export default function Page() {
       ? `Failcat - Dealer: ${dealer?.dealer_code}`
       : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`;
   };
+
+    ReactGA.send({
+      hitType: "pageview",
+      title: `Dealer Detail page: ${dealer?.dealer_code} - ${dealer?.address}`,
+      dealer: dealer
+    });
 
   //
   return (

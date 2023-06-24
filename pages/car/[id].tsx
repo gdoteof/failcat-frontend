@@ -4,6 +4,7 @@ import { Car } from "@/app/models";
 import Head from "next/head";
 import Script from "next/script";
 import CarCard from "@/app/components/car/card";
+import ReactGA from "react-ga4";
 
 async function fetchCar(id: number): Promise<Car> {
   const url = `https://failcat-rust.vteng.io/car/${id}`;
@@ -19,7 +20,12 @@ export default function Page() {
       const id = parseInt(router.query.id as string);
       fetchCar(id).then((car) => setCar(car));
     }
-  }, [router.query.id]);
+    ReactGA.send({
+      hitType: "pageview",
+      title: `Car Detail page: ${car?.car_model} - ${car?.vin}`,
+      car: car,
+    });
+  }, [car, router.query.id]);
 
   const getTitle = () => {
     return car
