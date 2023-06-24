@@ -29,6 +29,7 @@ export default function Page() {
         setDealer(Dealer)
       );
     fetchDealerCars(router.query.id as string).then((cars) => setCars(cars));
+    pageView();
   }, [router.query.id]);
 
   const getTitle = () => {
@@ -37,7 +38,7 @@ export default function Page() {
       : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`;
   };
 
-    ReactGA.send({
+  const pageView = () =>  ReactGA.send({
       hitType: "pageview",
       title: `Dealer Detail page: ${dealer?.dealer_code} - ${dealer?.address}`,
       dealer: dealer
@@ -46,19 +47,6 @@ export default function Page() {
   //
   return (
     <Container>
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-DJE0ZYCWJE');
-  `}
-      </Script>
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-DJE0ZYCWJE"
-        strategy="afterInteractive"
-      ></Script>
       <Head>
         <title>{getTitle()}</title>
       </Head>
