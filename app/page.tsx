@@ -15,6 +15,7 @@ import { MdOutlineHome } from "react-icons/md";
 import { KiaTelluride } from "./types/KiaTelluride";
 type OrderBy = "id" | "serial";
 import ReactGA from "react-ga4";
+import { stateCodes } from "./helpers/forms";
 
 const telluride = new KiaTelluride(2023);
 
@@ -35,10 +36,7 @@ export default function Page() {
   const [trims, setTrims] = React.useState<Set<string>>(
     new Set<string>(telluride.trims)
   );
-
-  const [localFilters, setLocalFilters] = React.useState(
-    ['trims']
-  );
+  const [dealerStates, setDealerStates] = React.useState<Set<string>>(new Set(stateCodes));
 
   const currentPage = () => offset / perPage + 1;
   useEffect(() => {
@@ -67,13 +65,46 @@ export default function Page() {
       title: `Homepage page: ${currentPage()}`,
     });
   };
-  const trimsArray = telluride.trims.map((trim) => ({ label: trim }));
 
+
+  const handleStateOptions = (keys: any) => {
+    const newStates = new Set<string>();
+    keys.forEach((key: string) => {
+      newStates.add(key);
+    });
+    setDealerStates(newStates);
+    return newStates;
+  };
+
+  const stateCodesArray = stateCodes.map((code) => ({ label: code }));
+
+  const dealerStateOptions = () => (
+    <Dropdown>
+      <Dropdown.Button flat color="error">Dealer States ({dealerStates.size})</Dropdown.Button>
+      <Dropdown.Menu
+        aria-label="Static Actions"
+        selectionMode="multiple"
+        disabledKeys={dealerStates}
+        onSelectionChange={handleTrimOptions}
+        items={stateCodesArray}
+      >
+        {(item: object) => {
+          const typedItem = item as { label: string };
+          return (
+            <Dropdown.Item key={typedItem.label as unknown as Key}>
+              {" "}
+              {typedItem.label as string}{" "}
+            </Dropdown.Item>
+          );
+        }}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
+  const trimsArray = telluride.trims.map((trim) => ({ label: trim }));
   const handleTrimOptions = (keys: any) => {
-    console.log("we got: ", keys);
     const newTrims = new Set<string>();
     keys.forEach((key: string) => {
-      console.log("adding: ", key);
       newTrims.add(key);
     });
     setTrims(newTrims);
@@ -150,66 +181,76 @@ export default function Page() {
 
   const NavItems = () => {
     return (
-      <Row justify="space-between" align="center" css={{ p: "$12" }}>
-        <Col>
-          <Button
-            icon={<MdOutlineHome />}
-            onClick={() => setOffset(0)}
-            css={{ px: "$5" }}
-            auto
-          />
-        </Col>
-        <Col>{trimOptions()}</Col>
-        <Col>
-          <Button.Group>
-            <Button
-              onClick={() => setOrder("serial")}
-              color={order == "serial" ? "secondary" : "primary"}
-              bordered={order == "serial" ? false : true}
-            >
-              Vin Sort
-            </Button>
-            <Button
-              onClick={() => setOrder("id")}
-              color={order == "id" ? "secondary" : "primary"}
-              bordered={order == "id" ? false : true}
-            >
-              Scrape Sort
-            </Button>
-          </Button.Group>
-        </Col>
-        <Col>
-          <Row justify="flex-start">
-            <Col>
-              <Button onClick={prevPage} disabled={offset - perPage < 0} auto>
-                {`< Prev `}
-              </Button>
-            </Col>
-            <Col>
-              <Row justify="flex-start">
-                <Text b>Page:</Text>
-                <Spacer x={0.5} />
-                <Text>{currentPage()}</Text>
-              </Row>
-              <Row justify="flex-start">
-                <Text size={"$xs"} weight={"light"}>
-                  Per Page:
-                </Text>
-                <Spacer x={0.5} />
-                <Text size={"$xs"} weight={"thin"}>
-                  {perPage}
-                </Text>
-              </Row>
-            </Col>
-            <Col>
-              <Button onClick={nextPage} auto>
-                {`Next >`}
-              </Button>
-            </Col>
-            <Col>{perPageOptions(perPageChoices)}</Col>
-          </Row>
-        </Col>
-      </Row>
+
+      <>
+        <Row>
+          <Col>
+            <Row justify="flex-start" css={{ p: "$6" }}>
+              <Col>
+                <Button
+                  icon={<MdOutlineHome />}
+                  onClick={() => setOffset(0)}
+                  css={{ px: "$5" }}
+                  auto
+                />
+              </Col>
+              <Col>{trimOptions()}</Col>
+              <Col>
+                <Button.Group css={{pl: "0" }}>
+                  <Button
+                    onClick={() => setOrder("serial")}
+                    color={order == "serial" ? "secondary" : "primary"}
+                    bordered={order == "serial" ? false : true}
+                  >
+                    Vin Sort
+                  </Button>
+                  <Button
+                    onClick={() => setOrder("id")}
+                    color={order == "id" ? "secondary" : "primary"}
+                    bordered={order == "id" ? false : true}
+                  >
+                    Scrape Sort
+                  </Button>
+                </Button.Group>
+              </Col>
+            </Row>
+          </Col>
+          <Col>
+            <Row justify="flex-start" css={{ p: "$6" }}>
+              <Col>
+                <Button onClick={prevPage} disabled={offset - perPage < 0} auto>
+                  {`< Prev `}
+                </Button>
+              </Col>
+              <Spacer x={1} />
+              <Col>
+                <Row justify="flex-start">
+                  <Text b>Page:</Text>
+                  <Spacer x={0.5} />
+                  <Text>{currentPage()}</Text>
+                </Row>
+                <Row justify="flex-start">
+                  <Text size={"$xs"} weight={"light"}>
+                    Per Page:
+                  </Text>
+                  <Spacer x={0.5} />
+                  <Text size={"$xs"} weight={"thin"}>
+                    {perPage}
+                  </Text>
+                </Row>
+              </Col>
+              <Spacer x={1} />
+              <Col>
+                <Button onClick={nextPage} auto>
+                  {`Next >`}
+                </Button>
+              </Col>
+              <Spacer x={1.5} />
+              <Col>{perPageOptions(perPageChoices)}</Col>
+            </Row>
+          </Col>
+        </Row>
+      </>
     );
   };
   return (
