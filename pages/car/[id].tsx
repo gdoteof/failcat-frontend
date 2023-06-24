@@ -17,13 +17,15 @@ export default function Page() {
   useEffect(() => {
     if (router.query.id) {
       const id = parseInt(router.query.id as string);
-      fetchCar(id).then((car) => setCar(car));
+      fetchCar(id).then((car) => {
+        setCar(car)
+        ReactGA.send({
+          hitType: "pageview",
+          title: `Car Detail page: ${car?.car_model} - ${car?.vin}`,
+          car: car,
+        });
+      });
     }
-    ReactGA.send({
-      hitType: "pageview",
-      title: `Car Detail page: ${car?.car_model} - ${car?.vin}`,
-      car: car,
-    });
   }, [car, router.query.id]);
 
   const getTitle = () => {

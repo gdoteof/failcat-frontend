@@ -4,7 +4,7 @@ import useSWR from "swr";
 import Script from "next/script";
 import { Car, CarModel, Dealer } from "./models";
 import CarList from "./components/carList";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -37,10 +37,12 @@ export default function Page() {
   const [models, setModels] = React.useState<string[]>(telluride.trims);
 
   const currentPage = () => offset / perPage + 1;
-  ReactGA.send({
-    hitType: "pageview",
-    title: `Homepage page: ${currentPage()}`,
-  });
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      title: `Homepage page: ${currentPage()}`,
+    });
+  })
 
   const nextPage = () => {
     ReactGA.send({

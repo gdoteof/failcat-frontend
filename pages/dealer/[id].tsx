@@ -25,11 +25,18 @@ export default function Page() {
 
   useEffect(() => {
     router.query.id &&
-      fetchDealer(router.query.id as string).then((Dealer) =>
-        setDealer(Dealer)
-      );
-    fetchDealerCars(router.query.id as string).then((cars) => setCars(cars));
-    pageView();
+      fetchDealer(router.query.id as string).then((dealer) => {
+        setDealer(dealer);
+        ReactGA.send({
+          hitType: "pageview",
+          title: `Dealer Detail page: ${dealer?.dealer_code} - ${dealer?.address}`,
+          dealer: dealer
+        });
+      });
+
+    fetchDealerCars(router.query.id as string).then((cars) => {
+      setCars(cars)
+    });
   }, [router.query.id]);
 
   const getTitle = () => {
@@ -38,13 +45,6 @@ export default function Page() {
       : `Failcat - Kia Telluride Vin Tracker: ${router.query.id}`;
   };
 
-  const pageView = () =>  ReactGA.send({
-      hitType: "pageview",
-      title: `Dealer Detail page: ${dealer?.dealer_code} - ${dealer?.address}`,
-      dealer: dealer
-    });
-
-  //
   return (
     <Container>
       <Head>
