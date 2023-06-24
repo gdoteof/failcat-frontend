@@ -27,6 +27,7 @@ export default function Page() {
     router.query.id &&
       fetchDealer(router.query.id as string).then((dealer) => {
         setDealer(dealer);
+        ReactGA.initialize('G-DJE0ZYCWJE');
         ReactGA.send({
           hitType: "pageview",
           title: `Dealer Detail page: ${dealer?.dealer_code} - ${dealer?.address}`,

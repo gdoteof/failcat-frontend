@@ -19,6 +19,7 @@ export default function Page() {
       const id = parseInt(router.query.id as string);
       fetchCar(id).then((car) => {
         setCar(car)
+        ReactGA.initialize('G-DJE0ZYCWJE');
         ReactGA.send({
           hitType: "pageview",
           title: `Car Detail page: ${car?.car_model} - ${car?.vin}`,

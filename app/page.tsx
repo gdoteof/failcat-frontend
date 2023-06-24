@@ -40,6 +40,7 @@ export default function Page() {
 
   const currentPage = () => offset / perPage + 1;
   useEffect(() => {
+    ReactGA.initialize('G-DJE0ZYCWJE');
     ReactGA.send({
       hitType: "pageview",
       title: `Homepage page: ${currentPage()}`,
