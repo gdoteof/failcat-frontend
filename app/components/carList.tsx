@@ -30,6 +30,10 @@ type OrderBy = "id" | "serial";
 const fetcher = (input: RequestInfo | URL, init?: RequestInit | undefined) =>
   fetch(input, init).then((res) => res.json());
 
+const sameBeginning = (a: string, b: string) => {
+  return a.slice(0, b.length) === b;
+};
+
 function getCarUrl(
   perPage: number,
   offset: number,
@@ -45,16 +49,19 @@ const CarList: FC<{
   offset: number;
   dealer: string;
   order: OrderBy;
+  trims: Set<string>;
 }> = ({
   perPage,
   offset,
   dealer,
   order,
+  trims,
 }: {
   perPage: number;
   offset: number;
   dealer: string;
   order: OrderBy;
+  trims: Set<string>;
 }) => {
   const { data, error, isLoading } = useSWR(
     getCarUrl(perPage, offset, dealer, order),
@@ -130,51 +137,58 @@ const CarList: FC<{
           <Table.Column>Date Scraped</Table.Column>
         </Table.Header>
         <Table.Body>
-          {data.map((car: Car) => (
-            <Table.Row key={car.serial_number}>
-              <Table.Cell>
-                <Link href={`/car/${car.id}`}>
-                  <Button auto onClick={() => trackSelection(car)}>
-                    Details
+          {data
+            .filter((car: Car) => {
+                const modelName = Object.keys(modelSlugMapping).find(
+                    (model: string) => car.car_model.includes(model)
+                );
+                return modelName ? trims.has(modelName) : false;
+            })
+            .map((car: Car) => (
+              <Table.Row key={car.serial_number}>
+                <Table.Cell>
+                  <Link href={`/car/${car.id}`}>
+                    <Button auto onClick={() => trackSelection(car)}>
+                      Details
+                    </Button>
+                  </Link>
+                </Table.Cell>
+                <Table.Cell>
+                  {highlightLastSix(car.vin)}
+                  <a
+                    onClick={() => trackWindowSticker(car)}
+                    href={`https://failcat-rust.vteng.io/window-sticker/${car.vin}`}
+                  >
+                    <MdPictureAsPdf />
+                  </a>
+                </Table.Cell>
+                <Table.Cell>
+                  <Image
+                    src={getCarImageSource(car, "carSwatch")}
+                    width="80px"
+                    height="40px"
+                    alt={car.ext_color}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <Image
+                    src={getSwatchImageSrc(car)}
+                    width="40"
+                    height="40"
+                    alt={car.int_color}
+                  />
+                </Table.Cell>
+                <Table.Cell>{car.car_model.slice(14)}</Table.Cell>
+                <Table.Cell>{car.opt_code}</Table.Cell>
+                <Table.Cell>
+                  <Button auto>
+                    <Link href={`/dealer/${car.ship_to}`}>{car.ship_to}</Link>
                   </Button>
-                </Link>
-              </Table.Cell>
-              <Table.Cell>
-                {highlightLastSix(car.vin)}
-                <a
-                  onClick={() => trackWindowSticker(car)}
-                  href={`https://failcat-rust.vteng.io/window-sticker/${car.vin}`}
-                >
-                  <MdPictureAsPdf />
-                </a>
-              </Table.Cell>
-              <Table.Cell>
-                <Image
-                  src={getCarImageSource(car, "carSwatch")}
-                  width="80px"
-                  height="40px"
-                  alt={car.ext_color}
-                />
-              </Table.Cell>
-              <Table.Cell>
-                <Image
-                  src={getSwatchImageSrc(car)}
-                  width="40"
-                  height="40"
-                  alt={car.int_color}
-                />
-              </Table.Cell>
-              <Table.Cell>{car.car_model.slice(14)}</Table.Cell>
-              <Table.Cell>{car.opt_code}</Table.Cell>
-              <Table.Cell>
-                <Button auto>
-                  <Link href={`/dealer/${car.ship_to}`}>{car.ship_to}</Link>
-                </Button>
-              </Table.Cell>
-              <Table.Cell>{car.model_year}</Table.Cell>
-              <Table.Cell>{prettyDate(car.created_date)}</Table.Cell>
-            </Table.Row>
-          ))}
+                </Table.Cell>
+                <Table.Cell>{car.model_year}</Table.Cell>
+                <Table.Cell>{prettyDate(car.created_date)}</Table.Cell>
+              </Table.Row>
+            ))}
         </Table.Body>
       </Table>
     </div>

@@ -50,9 +50,12 @@ export  const getCarImageSource = (car: Car, variant: string): string => {
 
 export const getSwatchImageSrc = (car: Car): string => {
     const interiorColorImage = colorNameToImage[car.int_color];
+    if (interiorColorImage === undefined) {
+        console.error("Failed to get swatch for car", car);
+        return `${car.int_color}--notfound`;
+    }
     const modelName = Object.keys(modelSlugMapping).find((model: string) => car.car_model.includes(model));
     let material = modelToMaterial[modelName??""] ?? "syntex";
-    console.log(car.car_model,modelName,material);
     let color = interiorColorImage.toLowerCase();
 
     return getImageDeliveryPath(`${color}--${material}--seat-trim.png`,'public');

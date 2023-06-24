@@ -1,23 +1,14 @@
 "use client";
 
-import useSWR from "swr";
-import Script from "next/script";
-import { Car, CarModel, Dealer } from "./models";
 import CarList from "./components/carList";
-import React, { useCallback, useEffect } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import Link from "next/link";
+import React, { Key, useEffect } from "react";
 import {
   Button,
-  Card,
   Col,
   Container,
   Dropdown,
-  Grid,
   Row,
   Spacer,
-  Switch,
-  Table,
   Text,
 } from "@nextui-org/react";
 import { MdOutlineHome } from "react-icons/md";
@@ -27,14 +18,27 @@ import ReactGA from "react-ga4";
 
 const telluride = new KiaTelluride(2023);
 
+type SelectionType = Set<Key>;
+
+type Entry = {
+  key: Key;
+  value: any;
+};
+
 export default function Page() {
   const [offset, setOffset] = React.useState<number>(0);
 
-  const [perPage, _setPerPage] = React.useState<number>(25);
+  const [perPage, setPerPage] = React.useState<number>(25);
   const [dealer, _setDealer] = React.useState<string | null>(null);
 
   const [order, setOrder] = React.useState<OrderBy>("serial");
-  const [models, setModels] = React.useState<string[]>(telluride.trims);
+  const [trims, setTrims] = React.useState<Set<string>>(
+    new Set<string>(telluride.trims)
+  );
+
+  const [localFilters, setLocalFilters] = React.useState(
+    ['trims']
+  );
 
   const currentPage = () => offset / perPage + 1;
   useEffect(() => {
@@ -42,40 +46,107 @@ export default function Page() {
       hitType: "pageview",
       title: `Homepage page: ${currentPage()}`,
     });
-  })
+  });
 
   const nextPage = () => {
+    let nextOffset: number = offset + perPage;
+    setOffset(nextOffset);
     ReactGA.send({
       hitType: "pageview",
       title: `Homepage page: ${currentPage()}`,
     });
-    setOffset(offset + perPage);
   };
   const prevPage = () => {
+    if (offset - perPage < 0) {
+      setOffset(0);
+    } else {
+      setOffset(offset - perPage);
+    }
     ReactGA.send({
       hitType: "pageview",
       title: `Homepage page: ${currentPage()}`,
     });
-    if (offset - perPage < 0) {
-      setOffset(0);
-    }
-    setOffset(offset - perPage);
+  };
+  const trimsArray = telluride.trims.map((trim) => ({ label: trim }));
+
+  const handleTrimOptions = (keys: any) => {
+    console.log("we got: ", keys);
+    const newTrims = new Set<string>();
+    keys.forEach((key: string) => {
+      console.log("adding: ", key);
+      newTrims.add(key);
+    });
+    setTrims(newTrims);
+    return newTrims;
   };
 
   const trimOptions = () => (
     <Dropdown>
-      <Dropdown.Button flat>Trims</Dropdown.Button>
+      <Dropdown.Button flat>Trims ({trims.size})</Dropdown.Button>
       <Dropdown.Menu
         aria-label="Static Actions"
         selectionMode="multiple"
-        selectedKeys={models}
+        selectedKeys={Array.from(trims)}
+        onSelectionChange={handleTrimOptions}
+        items={trimsArray}
       >
-        {models.map((model) => {
-          return <Dropdown.Item key={model}>{model}</Dropdown.Item>;
+        {(item: object) => {
+          const typedItem = item as { label: string };
+          return (
+            <Dropdown.Item key={typedItem.label as unknown as Key}>
+              {" "}
+              {typedItem.label as string}{" "}
+            </Dropdown.Item>
+          );
+        }}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
+  const perPageChoices: number[] = [25, 50, 100, 200];
+
+  const handlePerPage = (event: Key) => {
+    const newPerPage = perPageChoices[event as number];
+    if (newPerPage != newPerPage + 0) {
+      throw new Error("Invalid per page choice");
+    }
+    setPerPage(newPerPage + 0);
+    ReactGA.event("click", {
+      category: "Pagination",
+      page: currentPage(),
+      perPage: event as number,
+    });
+  };
+
+  const perPageOptions = (perPageChoices: number[]) => (
+    <Dropdown>
+      <Dropdown.Button flat>Per Page </Dropdown.Button>
+      <Dropdown.Menu aria-label="Static Actions" onAction={handlePerPage}>
+        {perPageChoices.map((perPageOption, index) => {
+          return <Dropdown.Item key={index}>{perPageOption}</Dropdown.Item>;
         })}
       </Dropdown.Menu>
     </Dropdown>
   );
+  const Debugger = () => {
+    process.env.NODE_ENV === "development" && (
+      <div>
+        <Text>Debug: </Text>
+        <Text>{`perPage: ${perPage}`}</Text>
+        <Text>{`offset: ${offset}`}</Text>
+        <Text>
+          {`trim: ${trims.forEach.toString}`}
+          <ul>
+            {telluride.trims.map((trim, index) => {
+              return <li key={trim}>{trim}</li>;
+            })}
+          </ul>
+        </Text>
+        <Text>{`currentPage(): ${currentPage()}`}</Text>
+        <Text>{`offset/perPage: ${offset / perPage}`}</Text>
+      </div>
+    );
+  };
 
   const NavItems = () => {
     return (
@@ -87,8 +158,8 @@ export default function Page() {
             css={{ px: "$5" }}
             auto
           />
-          <Spacer x={1} />
         </Col>
+        <Col>{trimOptions()}</Col>
         <Col>
           <Button.Group>
             <Button
@@ -108,17 +179,26 @@ export default function Page() {
           </Button.Group>
         </Col>
         <Col>
-          <Row justify="space-around">
+          <Row justify="flex-start">
             <Col>
               <Button onClick={prevPage} disabled={offset - perPage < 0} auto>
                 {`< Prev `}
               </Button>
             </Col>
             <Col>
-              <Row>
+              <Row justify="flex-start">
                 <Text b>Page:</Text>
                 <Spacer x={0.5} />
                 <Text>{currentPage()}</Text>
+              </Row>
+              <Row justify="flex-start">
+                <Text size={"$xs"} weight={"light"}>
+                  Per Page:
+                </Text>
+                <Spacer x={0.5} />
+                <Text size={"$xs"} weight={"thin"}>
+                  {perPage}
+                </Text>
               </Row>
             </Col>
             <Col>
@@ -126,6 +206,7 @@ export default function Page() {
                 {`Next >`}
               </Button>
             </Col>
+            <Col>{perPageOptions(perPageChoices)}</Col>
           </Row>
         </Col>
       </Row>
@@ -139,8 +220,16 @@ export default function Page() {
         offset={offset}
         dealer={dealer ?? ""}
         order={order}
+        trims={trims}
       />
       <NavItems />
+      {process.env.NODE_ENV === "development" && (
+        <div>
+          <Text>Debug: </Text>
+          <Text>{`perPage: ${perPage}`}</Text>
+          <Text>{`trim: ${trims}`}</Text>
+        </div>
+      )}
     </Container>
   );
 }
